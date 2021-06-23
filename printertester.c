@@ -1,4 +1,4 @@
-#define TERMINAL    "/dev/ttyUSB1"
+#define TERMINAL    "/dev/ttyUSB0"
 
 #include <errno.h>
 #include <fcntl.h> 
@@ -68,7 +68,8 @@ int main()
     int wlen;
     char *xstr = "Hello!\n";
     int xlen = strlen(xstr);
-    char *command = TEST_01;
+
+    char *command = BARCODE_EXAMPLE;
     int command_lenght = strlen(command);
 
     fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
@@ -81,6 +82,7 @@ int main()
     //set_mincount(fd, 0);                /* set to pure timed read */
 
     /* simple output */
+
     printf("enviando comando: %s \n", command);
     wlen = write(fd, command, command_lenght);
     printf("%d \n", wlen);
