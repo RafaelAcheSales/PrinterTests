@@ -1,7 +1,7 @@
 
 char *PRINT_LINE_FEED = "\x0a";
 char *PRINT_CARRIAGE_RETURN = "\x0d";
-char PARTIAL_CUT_ONE[] = {'\x1b','\x69', '\x0a'};
+char PARTIAL_CUT_ONE[] = {'\x0a','\x0a','\x0a','\x0a','\x1b','\x69', '\x0a'};
 char *QR_CODE_MODEL = "\x1d\x28\x6b\x03\x00\x31\x63\x03";
 char *QR_CODE_DATA = "\x1d\x28\x6b\x64\x0a\x31\x50\x30\x0a\x0a\x61" ;
 char *QR_CODE_PRINT = "\x1d\x28\x6b\x03\x00\x31\x51\x30";
@@ -10,9 +10,7 @@ char *TRANSMIT_STATUS = "\x1d\x72\x01\n";
 char *REALTIME_TRASMIT_STATUS_01 = "\x10\x04\x01";
 char *REALTIME_TRASMIT_STATUS_02 = "\x10\x04\x02";
 char LINE_FEED_INT = (unsigned char ) 10;
-char *TEST_01 = "\x1d\x28\x6b\x03\x00\x31\x63\x08"
-                "\x1d\x28\x6b\x64\x0a\x31\x50\x30\x0a\x0a\x61"
-                "\x1d\x28\x6b\x03\x00\x31\x51\x30\n";
+char *TEST_01 = "\x1d\x28\x6b\x03\x00\x31\x63\x08";
                 
 char TEST_02[] = "\x1b\x4d\x01 Fonte01 \n"
                 "\x1b\x4d\x02 Fonte02 \n"
@@ -69,3 +67,7 @@ char *BARCODE_EXAMPLE = "\x1b\x40\x1d\x48\x02\x1d\x68\x64\x1d\x77\x03"
                         "\x1d\x6b\x48\x0b\x32\x33\x34\x35\x36\x41\x42\x2e\x2f\x2b\x2c"
                         "\x37\x33\x0d\x0a"
                         "\x1d\x6b\x49\x0A\x7B\x42\x4E\x6F\x2E\x7B\x43\x0C\x22\x38";
+
+
+char *QR_CODE_TEXT = "dawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkd"
+"dawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvslajdyhwgvalodjhasvldjhavlojshdvlajhsdbvlaskjdbhujdwahjudwiohdauihsdjbsjfbvfkddawdwaawddnawhydyhasdgiayuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwdgaoduywgadukyawgudiokyawdgkwauydgvakwduyawoduyawgvdolasuyhvdgloasjbdyhvoawludygvaoljshdgvlajdhkgvawoluydjvglajhdsvsla";

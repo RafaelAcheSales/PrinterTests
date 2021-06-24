@@ -66,11 +66,68 @@ int main()
     char *portname = TERMINAL;
     int fd;
     int wlen;
-    char *xstr = "Hello!\n";
-    int xlen = strlen(xstr);
 
-    char *command = BARCODE_EXAMPLE;
-    int command_lenght = strlen(command);
+    char command[1024] = "\x1d\x28\x6b";
+    char input[512];
+    scanf("%s",input);
+    // printf("%s\n",input);
+    int input_size = strlen(input);
+    int size = input_size + 3;
+    command[3] = size % 256;
+    command[4] = size / 256;
+    command[5] = 49;
+    command[6] = 80;
+    command[7] = 48;
+
+
+    int actual_size = 8+input_size;
+    //strncat(command, teste, len);
+    for (int i = 8; i < actual_size; i++)
+    {
+        command[i] = input[i-8];
+    }
+    /*
+    char *print_qr_cmd = "\x1D\x28\x6B\x03\x00\x31\x51\x30";
+    int len = strlen(print_qr_cmd);
+    for (int i = actual_size; i < actual_size+len; i++)
+    {
+        command[i] = print_qr_cmd[i-len];
+    }
+    */
+    command[actual_size] = 29;
+    command[actual_size+1] = 40;
+    command[actual_size+2] = 107;
+    command[actual_size+3] = 3;
+    command[actual_size+4] = 0;
+    command[actual_size+5] = 49;
+    command[actual_size+6] = 81;
+    command[actual_size+7] = 48;
+
+
+    actual_size += 8;
+    //printf("result: %s \nsizeIs: %d \n commandlen: %d\n", cmd, lencmd, command_lenght);
+    for (int i = 0; i < actual_size; i++)
+    {
+        printf("%x, %c\n", command[i], command[i]);
+    }
+
+
+    int command_lenght = actual_size;
+    /*
+    char escpos[512];
+    escpos = "\x1D\x28\x6B\x03\x00\x31\x43#{qr_size}";
+    escpos << "\x1D\x28\x6B\x03\x00\x31\x45\x33"
+    escpos << "\x1D\x28\x6B#{lsb}#{msb}\x31\x50\x30"
+    escpos << text # 
+    escpos << "\x1D\x28\x6B\x03\x00\x31\x51\x30"
+
+    # writing byte streams directly to the serial port
+    printer.write escpos
+
+
+    */
+
+
 
     fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
@@ -83,14 +140,22 @@ int main()
 
     /* simple output */
 
-    printf("enviando comando: %s \n", command);
+    //printf("enviando comando: %s \n", command);
+    char init_qr_cmd[16] = "\x1D\x28\x6B\x03\x00\x31\x43\x01\x1D\x28\x6B\x03\x00\x31\x45\x33";
+    printf("Digite o tamanho 0-16: ");
+    int sizeInput;
+    scanf("%d", &sizeInput);
+    init_qr_cmd[7] = sizeInput;
+    wlen = write(fd, init_qr_cmd, 16);
     wlen = write(fd, command, command_lenght);
+    wlen = write(fd, PARTIAL_CUT_ONE, 7);
     printf("%d \n", wlen);
     if (wlen != command_lenght) {
         printf("Error from write: %d, %d\n", wlen, errno);
     }
     tcdrain(fd);    /* delay for output */
 
+    //wlen = write(fd, command2, command2_lenght);
 
     /* simple noncanonical input */
     do {
