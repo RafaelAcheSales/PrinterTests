@@ -70,7 +70,7 @@ int main()
     char command[1024] = "\x1d\x28\x6b";
     char input[512];
     scanf("%s",input);
-    // printf("%s\n",input);
+    printf("%s\n",input);
     int input_size = strlen(input);
     int size = input_size + 3;
     command[3] = size % 256;
@@ -86,14 +86,7 @@ int main()
     {
         command[i] = input[i-8];
     }
-    /*
-    char *print_qr_cmd = "\x1D\x28\x6B\x03\x00\x31\x51\x30";
-    int len = strlen(print_qr_cmd);
-    for (int i = actual_size; i < actual_size+len; i++)
-    {
-        command[i] = print_qr_cmd[i-len];
-    }
-    */
+
     command[actual_size] = 29;
     command[actual_size+1] = 40;
     command[actual_size+2] = 107;
@@ -105,7 +98,6 @@ int main()
 
 
     actual_size += 8;
-    //printf("result: %s \nsizeIs: %d \n commandlen: %d\n", cmd, lencmd, command_lenght);
     for (int i = 0; i < actual_size; i++)
     {
         printf("%x, %c\n", command[i], command[i]);
@@ -113,19 +105,6 @@ int main()
 
 
     int command_lenght = actual_size;
-    /*
-    char escpos[512];
-    escpos = "\x1D\x28\x6B\x03\x00\x31\x43#{qr_size}";
-    escpos << "\x1D\x28\x6B\x03\x00\x31\x45\x33"
-    escpos << "\x1D\x28\x6B#{lsb}#{msb}\x31\x50\x30"
-    escpos << text # 
-    escpos << "\x1D\x28\x6B\x03\x00\x31\x51\x30"
-
-    # writing byte streams directly to the serial port
-    printer.write escpos
-
-
-    */
 
 
 
@@ -146,9 +125,11 @@ int main()
     int sizeInput;
     scanf("%d", &sizeInput);
     init_qr_cmd[7] = sizeInput;
-    wlen = write(fd, init_qr_cmd, 16);
-    wlen = write(fd, command, command_lenght);
-    wlen = write(fd, PARTIAL_CUT_ONE, 7);
+    //wlen = write(fd, init_qr_cmd, 16);
+    //wlen = write(fd, command, command_lenght);
+    //wlen = write(fd, PARTIAL_CUT_ONE, 7);
+    wlen = write(fd, LOGO_IMG, 5000);
+
     printf("%d \n", wlen);
     if (wlen != command_lenght) {
         printf("Error from write: %d, %d\n", wlen, errno);
@@ -157,7 +138,7 @@ int main()
 
     //wlen = write(fd, command2, command2_lenght);
 
-    /* simple noncanonical input */
+    /* simple noncanonical input 
     do {
         
         unsigned char buf[80];
@@ -168,7 +149,7 @@ int main()
 #ifdef DISPLAYSTRING
             buf[rdlen] = 0;
             printf("Read %d: \"%s\"\n", rdlen, buf);
-#else /* display hex */
+#else /* display hex 
             unsigned char   *p;
             printf("Read %d:", rdlen);
             for (p = buf; rdlen-- > 0; p++)
@@ -178,9 +159,9 @@ int main()
         } else if (rdlen < 0) {
 
             printf("Error from read: %d: %s\n", rdlen, strerror(errno));
-        } else {  /* rdlen == 0 */
+        } else {  /* rdlen == 0 
             printf("Timeout from read\n");
         }          
-        /* repeat read to get full message */
-    } while (1);
+        /* repeat read to get full message 
+    } while (1);*/
 }
