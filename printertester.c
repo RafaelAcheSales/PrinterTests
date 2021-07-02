@@ -1,4 +1,4 @@
-#define TERMINAL    "/dev/ttyUSB0"
+#define TERMINAL    "/dev/ttyUSB1"
 
 #include <errno.h>
 #include <fcntl.h> 
@@ -9,6 +9,16 @@
 #include <unistd.h>
 #include "printer_commands.h"
 #include "bmp.h"
+#include <stdbool.h>
+
+int maskbit(unsigned char mask,unsigned char *value) {
+    printf("and: %d mask is: %d value is: %d\n", mask & *value, mask, *value);
+    unsigned char temp = mask & *value ;
+    if (temp == mask) {
+        return 1;
+    } 
+    return 0;
+}
 
 int set_interface_attribs(int fd, int speed)
 {
@@ -28,6 +38,7 @@ int set_interface_attribs(int fd, int speed)
     tty.c_cflag &= ~PARENB;     /* no parity bit */
     tty.c_cflag &= ~CSTOPB;     /* only need 1 stop bit */
     tty.c_cflag &= ~CRTSCTS;    /* no hardware flowcontrol */
+    //tty.c_cflag |= CRTSCTS;    /* yes hardware flowcontrol */
 
     /* setup for non-canonical mode */
     tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
@@ -85,15 +96,17 @@ int main()
         command_size = 0;
         //printf("enviando comando: %s \n", command);
         int input;
-        int maxOptions = 3;
+        int maxOptions = 4;
         printf("Selecione a operaçao\n");
         printf("1 - impressao de texto\n");
         printf("2 - impressao de QRcode\n");
         printf("3 - cortar papel\n");
+        printf("4 - ler sensores\n");
         input = getchar();
         input = input - 48;
         printf("input is %d\n", input);
         fflush(stdin);
+        fflush(stdout);
         switch (input)
         {
         case 1:
@@ -167,6 +180,67 @@ int main()
             }
             tcdrain(fd);
             break;
+        case 4:
+            //]
+            fflush(stdin);
+            printf("digite n (1..4): \n");
+            getchar();
+            char statusType = getchar();
+            printf("got char: %d\n", statusType);
+            //statusType = statusType - 48;
+            char cmd[3] = {'\0'};
+            if (statusType == '1') {
+                command_size = strlen(REALTIME_TRASMIT_STATUS_01);
+                for (int i = 0; i < 3; i++)
+                {
+                    cmd[i] = REALTIME_TRASMIT_STATUS_01[i];
+                }
+                
+                
+
+            } else if (statusType == '2') {
+
+            }
+            for (int i = 0; i < 3; i++)
+                {
+                    printf("Writing %02x\n", cmd[i]);
+                    //cmd[i] = REALTIME_TRASMIT_STATUS_01[i];
+                }
+            wlen = write(fd, cmd, command_size);
+            if (wlen != command_size) {
+                printf("Error from write: %d, %d\n", wlen, errno);
+            }
+            tcdrain(fd);
+
+            //recive
+            do {
+                unsigned char buf[80];
+                int rdlen;
+                unsigned char bufdata;
+                rdlen = read(fd, buf, sizeof(buf) - 1);
+                if (rdlen > 0) {
+                    unsigned char   *p;
+                    printf("Read %d:", rdlen);
+                    for (p = buf; rdlen-- > 0; p++)
+                        bufdata = *p;
+                        printf(" 0x%x\n", bufdata);
+                        if(statusType == '1') {
+                            struct printer_realtime_status1 status;
+                            status.cash_drawer = maskbit(CASH_DRAWER_MASK, &bufdata);
+                            status.on_off = maskbit(ON_OFF_MASK, &bufdata);
+                            status.paper_torn = maskbit(PAPER_TORN_MASK, &bufdata);
+                            printf("Recived status cash: %d, on_off: %d paper torn: %d\n", status.cash_drawer, status.on_off, status.paper_torn);
+                            fflush(stdin);
+                        }
+                    printf("\n");
+                } else if (rdlen < 0) {
+
+                    printf("Error from read: %d: %s\n", rdlen, strerror(errno));
+                } else {  /* rdlen == 0 */
+                    printf("Timeout from read\n");
+                }          
+                /* repeat read to get full message */
+            } while (1);
         
         default:
             printf("Not reckognized\n\n");
