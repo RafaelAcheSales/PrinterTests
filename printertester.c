@@ -109,6 +109,7 @@ int set_interface_attribs(int fd, int speed)
     tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
     tty.c_oflag &= ~OPOST;
 
+    tty.c_cflag |= IXANY;    /* SOFWTARE flowcontrol */
     /* fetch bytes as they become available */
     tty.c_cc[VMIN] = 1;
     tty.c_cc[VTIME] = 1;
@@ -150,7 +151,7 @@ int main()
         return -1;
     }
     /*baudrate 115200, 8 bits, no parity, 1 stop bit */
-    set_interface_attribs(fd, B9600);
+    set_interface_attribs(fd, B115200);
     //set_mincount(fd, 0);                /* set to pure timed read */
     int command_size = 0;
     
@@ -172,14 +173,13 @@ int main()
         input = getchar();
         input = input - 48;
         printf("input is %d\n", input);
-        fflush(stdin);
         fflush(stdout);
         switch (input)
         {
         #pragma region case1
         case 1:
-            command_size = strlen(TEST_02);
-            wlen = write(fd, TEST_02, command_size);
+            command_size = strlen(TEST_06);
+            wlen = write(fd, TEST_06, command_size);
             if (wlen != command_size) {
                 printf("Error from write: %d, %d\n", wlen, errno);
             }
@@ -257,7 +257,6 @@ int main()
         #pragma region case4
         case 4:
             //
-            fflush(stdin);
             printf("digite n (1..4): \n");
             getchar();
             char statusType = getchar();
@@ -304,7 +303,6 @@ int main()
                             status.on_off = maskbit(ON_OFF_MASK, &bufdata);
                             status.paper_torn = maskbit(PAPER_TORN_MASK, &bufdata);
                             printf("Recived status cash: %d, on_off: %d paper torn: %d\n", status.cash_drawer, status.on_off, status.paper_torn);
-                            fflush(stdin);
                         }
                     printf("\n");
                 } else if (rdlen < 0) {
@@ -355,7 +353,7 @@ int main()
             print_empty_space(2, fd);
             print_barcode_timestamp(160, 4, fd, 0);
             print_empty_space(4, fd);
-
+            
             cut_paper(fd);
 
             
@@ -366,7 +364,6 @@ int main()
             printf("Not reckognized\n\n");
             break;
         }
-        fflush(stdin);
     }
     #pragma region response
     //     int input_size = strlen(input);
