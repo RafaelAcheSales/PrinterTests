@@ -1,15 +1,16 @@
-#define TERMINAL    "/dev/ttyUSB1"
+#define TERMINAL0    "/dev/ttyUSB0"
+#define TERMINAL1    "/dev/ttyUSB1"
 
+#include "printer_commands.h"
 #include <errno.h>
 #include <fcntl.h> 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <termios.h>
 #include <time.h>
 #include <unistd.h>
-#include "printer_commands.h"
-#include <stdbool.h>
+int baud_rate = B115200;
+
 
 int maskbit(unsigned char mask,unsigned char *value) {
     printf("and: %d mask is: %d value is: %d\n", mask & *value, mask, *value);
@@ -19,6 +20,7 @@ int maskbit(unsigned char mask,unsigned char *value) {
     } 
     return 0;
 }
+
 void print_empty_space(int n_spaces, int fd){
     for (int i = 0; i < n_spaces; i++)
     {
@@ -109,10 +111,10 @@ int set_interface_attribs(int fd, int speed)
     tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
     tty.c_oflag &= ~OPOST;
 
-    tty.c_cflag |= IXANY;    /* SOFWTARE flowcontrol */
+    //tty.c_cflag |= IXANY;    /* SOFWTARE flowcontrol */
     /* fetch bytes as they become available */
-    tty.c_cc[VMIN] = 1;
-    tty.c_cc[VTIME] = 1;
+    tty.c_cc[VMIN] = 0;
+    tty.c_cc[VTIME] = 5;
 
     if (tcsetattr(fd, TCSANOW, &tty) != 0) {
         printf("Error from tcsetattr: %s\n", strerror(errno));
@@ -141,17 +143,22 @@ void set_mincount(int fd, int mcount)
 int main()
 {
     
-    char *portname = TERMINAL;
+    char *portname0 = TERMINAL0;
+    char *portname1 = TERMINAL1;
     int fd;
     int wlen;
 
-    fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
+    fd = open(portname0, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
-        printf("Error opening %s: %s\n", portname, strerror(errno));
-        return -1;
+        printf("Error opening %s: %s\n", portname0, strerror(errno));
+        fd = open(portname1, O_RDWR | O_NOCTTY | O_SYNC);
+        if (fd < 0) {
+            printf("Error opening %s: %s\n", portname1, strerror(errno));
+            return -1;
+        }
     }
     /*baudrate 115200, 8 bits, no parity, 1 stop bit */
-    set_interface_attribs(fd, B115200);
+    set_interface_attribs(fd, baud_rate);
     //set_mincount(fd, 0);                /* set to pure timed read */
     int command_size = 0;
     
@@ -163,6 +170,7 @@ int main()
         int input;
         int maxOptions = 4;
         printf("Selecione a operaçao\n");
+        printf("0 - sair\n");
         printf("1 - impressao de texto\n");
         printf("2 - impressao de QRcode\n");
         printf("3 - cortar papel\n");
@@ -176,12 +184,23 @@ int main()
         fflush(stdout);
         switch (input)
         {
+        #pragma region
+        case 0:
+            exit(0);
+        #pragma endregion
         #pragma region case1
         case 1:
-            command_size = strlen(TEST_06);
-            wlen = write(fd, TEST_06, command_size);
+            command_size = strlen(TEST_PAPER);
+            //wlen = write(fd, "\x1b\x40", 2);
+            wlen = write(fd, TEST_PAPER_NEW, 8);
+            for (size_t i = 0; i < 8; i++)
+            {
+                /* code */
+                printf(" %02x", TEST_PAPER_NEW[i]);
+            }
+            
             if (wlen != command_size) {
-                printf("Error from write: %d, %d\n", wlen, errno);
+                printf("\nError from write: %d, %d\n", wlen, errno);
             }
             tcdrain(fd);
             break;
@@ -256,63 +275,63 @@ int main()
         #pragma endregion
         #pragma region case4
         case 4:
-            //
-            printf("digite n (1..4): \n");
-            getchar();
-            char statusType = getchar();
-            printf("got char: %d\n", statusType);
-            //statusType = statusType - 48;
-            char cmd[3] = {'\0'};
-            if (statusType == '1') {
+            while (1)
+            {
+                printf("digite n (1..4): \n");
+                getchar();
+                int statusType = getchar();
+                printf("got char: %d\n", statusType);
+                //statusType = statusType - 48;
+                char cmd[4];
+                strcpy(cmd, REALTIME_TRASMIT_STATUS_01);
                 command_size = strlen(REALTIME_TRASMIT_STATUS_01);
-                for (int i = 0; i < 3; i++)
-                {
-                    cmd[i] = REALTIME_TRASMIT_STATUS_01[i];
+                cmd[2] = statusType - '0';
+                for (int i = 0; i < command_size; i++)
+                    {
+                        printf("Writing %02x\n", cmd[i]);
+                        //cmd[i] = REALTIME_TRASMIT_STATUS_01[i];
+                    }
+                wlen = write(fd, cmd, command_size);
+                if (wlen != command_size) {
+                    printf("Error from write: %d, %d\n", wlen, errno);
                 }
-                
-                
-            } else if (statusType == '2') {
+                tcdrain(fd);
 
+                //recive
+                do {
+                    unsigned char buf[80];
+                    int rdlen;
+                    unsigned char bufdata;
+                    printf("reding from buffer...\n");
+                    rdlen = read(fd, buf, sizeof(buf) - 1);
+                    if (rdlen > 0) {
+                        unsigned char   *p;
+                        printf("Read %d:", rdlen);
+                        for (p = buf; rdlen-- > 0; p++)
+                            bufdata = *p;
+                            printf(" 0x%x\n", bufdata);
+                            if(statusType == '1') {
+                                struct printer_realtime_status1 status;
+                                status.cash_drawer = maskbit(CASH_DRAWER_MASK, &bufdata);
+                                status.on_off = maskbit(ON_OFF_MASK, &bufdata);
+                                status.paper_torn = maskbit(PAPER_TORN_MASK, &bufdata);
+                                printf("Recived status cash: %d, on_off: %d paper torn: %d\n", status.cash_drawer, status.on_off, status.paper_torn);
+                            } else if( statusType == '2') {
+
+                            }
+                        printf("\n");
+                        break;
+                    } else if (rdlen < 0) {
+
+                        printf("Error from read: %d: %s\n", rdlen, strerror(errno));
+                    } else {  /* rdlen == 0 */
+                        printf("Timeout from read\n");
+                        break;
+                    }          
+                    /* repeat read to get full message */
+                } while (1);
             }
-            for (int i = 0; i < 3; i++)
-                {
-                    printf("Writing %02x\n", cmd[i]);
-                    //cmd[i] = REALTIME_TRASMIT_STATUS_01[i];
-                }
-            wlen = write(fd, cmd, command_size);
-            if (wlen != command_size) {
-                printf("Error from write: %d, %d\n", wlen, errno);
-            }
-            tcdrain(fd);
-
-            //recive
-            do {
-                unsigned char buf[80];
-                int rdlen;
-                unsigned char bufdata;
-                rdlen = read(fd, buf, sizeof(buf) - 1);
-                if (rdlen > 0) {
-                    unsigned char   *p;
-                    printf("Read %d:", rdlen);
-                    for (p = buf; rdlen-- > 0; p++)
-                        bufdata = *p;
-                        printf(" 0x%x\n", bufdata);
-                        if(statusType == '1') {
-                            struct printer_realtime_status1 status;
-                            status.cash_drawer = maskbit(CASH_DRAWER_MASK, &bufdata);
-                            status.on_off = maskbit(ON_OFF_MASK, &bufdata);
-                            status.paper_torn = maskbit(PAPER_TORN_MASK, &bufdata);
-                            printf("Recived status cash: %d, on_off: %d paper torn: %d\n", status.cash_drawer, status.on_off, status.paper_torn);
-                        }
-                    printf("\n");
-                } else if (rdlen < 0) {
-
-                    printf("Error from read: %d: %s\n", rdlen, strerror(errno));
-                } else {  /* rdlen == 0 */
-                    printf("Timeout from read\n");
-                }          
-                /* repeat read to get full message */
-            } while (1);
+            
         #pragma endregion
         #pragma region case5
         case 5:
@@ -360,6 +379,7 @@ int main()
 
             break;
         #pragma endregion
+        
         default:
             printf("Not reckognized\n\n");
             break;

@@ -1,16 +1,18 @@
 from os import system
 from escpos.printer import Serial
+import serial
 
 p = Serial(devfile='/dev/ttyUSB1',
-           baudrate=9600,
+           baudrate=115200,
            bytesize=8,
            parity='N',
            stopbits=1,
-           timeout=1.00,
-           dsrdtr=True)
+           xonxoff=True
+           )
 
 
-p.image("utech_logo-pequeno3.png")
-
+#p.image("logo_rodape.png")
+p.text("rafaelachesalesrafaelachesalesrafaelachesalesrafaelachesalesrafaelachesales\n")
+p.image("logo_rodape.png")
 p.cut()
 exit()

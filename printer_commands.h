@@ -1,4 +1,12 @@
 
+#include <termios.h>
+typedef struct 
+{
+    int baud_rate;
+    char printer_name[50];
+}printer_config;
+
+
 char *PRINT_LINE_FEED = "\x0a";
 char *PRINT_CARRIAGE_RETURN = "\x0d";
 char PARTIAL_CUT_ONE[] = "\x1b\x69\n";
@@ -12,6 +20,7 @@ char *REALTIME_TRASMIT_STATUS_02 = "\x10\x04\x02";
 char LINE_FEED_INT = (unsigned char ) 10;
 char PRINT_DOWNLOADED_IMG[] = "\x1D\x2F\x03";
 char *TEST_01 = "\x1d\x28\x6b\x03\x00\x31\x63\x08";
+char TEST_PAPER_NEW[] = "\x1D\x28\x41\x02\x00\x00\x02\n";
 char *TEXT_ALIGNMENT_LEFT = "\x1B\x61\x00";
 char *TEXT_ALIGNMENT_CENTER = "\x1B\x61\x01";
 char *TEXT_ALIGNMENT_RIGHT = "\x1B\x61\x02";
@@ -20,6 +29,12 @@ char CASH_DRAWER_MASK = 1 << 2;
 char ON_OFF_MASK = 1 << 3;
 char PAPER_TORN_MASK = 1 << 7;
 struct printer_realtime_status1
+{
+    int cash_drawer;
+    int on_off;
+    int paper_torn;
+};
+struct printer_realtime_status2
 {
     int cash_drawer;
     int on_off;
