@@ -9,7 +9,10 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-int baud_rate = B115200;
+int baud_rate = B9600;
+
+
+
 
 
 int maskbit(unsigned char mask,unsigned char *value) {
@@ -110,6 +113,12 @@ int set_interface_attribs(int fd, int speed)
     tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
     tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
     tty.c_oflag &= ~OPOST;
+
+    //canonical
+    // tty.c_iflag |= IGNPAR | IGNCR;
+    // tty.c_iflag &= ~(IXON | IXOFF | IXANY);
+    // tty.c_lflag |= ICANON;
+    // tty.c_oflag &= ~OPOST;
 
     //tty.c_cflag |= IXANY;    /* SOFWTARE flowcontrol */
     /* fetch bytes as they become available */
@@ -278,8 +287,14 @@ int main()
             while (1)
             {
                 printf("digite n (1..4): \n");
-                getchar();
-                int statusType = getchar();
+                //getchar();
+                int statusType;
+                do
+                {
+                    statusType = getchar();
+                } while (statusType == '\n');
+                
+                
                 printf("got char: %d\n", statusType);
                 //statusType = statusType - 48;
                 char cmd[4];
@@ -304,6 +319,7 @@ int main()
                     unsigned char bufdata;
                     printf("reding from buffer...\n");
                     rdlen = read(fd, buf, sizeof(buf) - 1);
+                    printf("red %d bytes\n", rdlen);
                     if (rdlen > 0) {
                         unsigned char   *p;
                         printf("Read %d:", rdlen);
