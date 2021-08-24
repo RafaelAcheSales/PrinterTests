@@ -14,14 +14,13 @@ p = Serial(devfile='/dev/ttyUSB0',
            baudrate=9600,
            bytesize=8,
            parity='N',
-           stopbits=1,
-           xonxoff=True
+           stopbits=1
+           #xonxoff=True
            )
 
 
 #p.image("logo_rodape.png")
-p.image("logo_rodape.png")
-p.text("rafaelachesalesrafaelachesalesrafaelachesalesrafaelachesalesrafaelachesales\n")
-print(p.query_status(TRASMIT_STATUS))
-p.cut()
+#p.text("rafaelachesalesrafaelachesalesrafaelachesalesrafaelachesalesrafaelachesales\n")
+print(p.query_status(RT_STATUS_ONLINE))
+# p.cut()
 exit()

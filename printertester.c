@@ -9,7 +9,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-int baud_rate = B9600;
+int baud_rate = B115200;
 
 
 
@@ -178,15 +178,15 @@ int main()
         //printf("enviando comando: %s \n", command);
         int input;
         int maxOptions = 4;
-        printf("Selecione a operaçao\n");
-        printf("0 - sair\n");
-        printf("1 - impressao de texto\n");
+        printf("Select operation\n");
+        printf("0 - leave\n");
+        printf("1 - Print texto\n");
         printf("2 - impressao de QRcode\n");
         printf("3 - cortar papel\n");
-        printf("4 - ler sensores\n");
+        printf("4 - Transmit realtime status\n");
         printf("5 - impressao de barcode\n");
         printf("6 - impressao de imagem\n");
-        printf("7 - impressao ticket completo\n");
+        printf("7 - Print ticket\n");
         input = getchar();
         input = input - 48;
         printf("input is %d\n", input);
@@ -286,7 +286,7 @@ int main()
         case 4:
             while (1)
             {
-                printf("digite n (1..4): \n");
+                printf("select n value (1..4): \n");
                 //getchar();
                 int statusType;
                 do
@@ -295,7 +295,7 @@ int main()
                 } while (statusType == '\n');
                 
                 
-                printf("got char: %d\n", statusType);
+                printf("sending command: ");
                 //statusType = statusType - 48;
                 char cmd[4];
                 strcpy(cmd, REALTIME_TRASMIT_STATUS_01);
@@ -303,9 +303,10 @@ int main()
                 cmd[2] = statusType - '0';
                 for (int i = 0; i < command_size; i++)
                     {
-                        printf("Writing %02x\n", cmd[i]);
+                        printf("0x%02X ", cmd[i]);
                         //cmd[i] = REALTIME_TRASMIT_STATUS_01[i];
                     }
+                printf("\n");
                 wlen = write(fd, cmd, command_size);
                 if (wlen != command_size) {
                     printf("Error from write: %d, %d\n", wlen, errno);
@@ -319,7 +320,7 @@ int main()
                     unsigned char bufdata;
                     printf("reding from buffer...\n");
                     rdlen = read(fd, buf, sizeof(buf) - 1);
-                    printf("red %d bytes\n", rdlen);
+                    printf("recived %d bytes\n", rdlen);
                     if (rdlen > 0) {
                         unsigned char   *p;
                         printf("Read %d:", rdlen);
